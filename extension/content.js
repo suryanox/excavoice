@@ -12,6 +12,12 @@ const styles = `
   font-size: 13px;
 }
 
+.xcv-widget *,
+.xcv-widget *::before,
+.xcv-widget *::after {
+  box-sizing: border-box;
+}
+
 .xcv-panel {
   width: 320px;
   background: #26262b;
@@ -93,6 +99,10 @@ const styles = `
   border-color: #6965db;
 }
 
+.xcv-field__control.xcv-invalid {
+  border-color: #e0566f;
+}
+
 .xcv-checkrow {
   display: flex;
   align-items: center;
@@ -121,6 +131,14 @@ const styles = `
 
 .xcv-status--ok {
   color: #4caf7d;
+}
+
+.xcv-status--error {
+  color: #e0566f;
+}
+
+.xcv-req {
+  color: #e0566f;
 }
 
 .xcv-save {
@@ -311,11 +329,11 @@ widget.innerHTML = `
 
     <div class="xcv-config" hidden>
       <label class="xcv-field">
-        <span class="xcv-field__label">API base URL</span>
+        <span class="xcv-field__label">API base URL <span class="xcv-req">*</span></span>
         <input id="xcv-baseUrl" class="xcv-field__control" type="text" placeholder="https://litellm.example.com" autocomplete="off" spellcheck="false" />
       </label>
       <label class="xcv-field">
-        <span class="xcv-field__label">API key</span>
+        <span class="xcv-field__label">API key <span class="xcv-req">*</span></span>
         <input id="xcv-apiKey" class="xcv-field__control" type="password" placeholder="sk-..." autocomplete="off" />
       </label>
       <label class="xcv-field">
@@ -432,6 +450,15 @@ function hidePanel() {
   logsBtn.classList.remove("xcv-iconbtn--active");
 }
 
+function validateConfig(cfg) {
+  if (!cfg.baseUrl) return "API base URL is required.";
+  if (!cfg.apiKey) return "API key is required.";
+  if (!cfg.freeModels && !cfg.model) {
+    return "Model is required unless free models is enabled.";
+  }
+  return null;
+}
+
 saveBtn.addEventListener("click", () => {
   const cfg = {
     baseUrl: baseUrlEl.value.trim(),
@@ -439,6 +466,22 @@ saveBtn.addEventListener("click", () => {
     model: modelEl.value.trim(),
     freeModels: freeModelsEl.checked,
   };
+
+  baseUrlEl.classList.remove("xcv-invalid");
+  apiKeyEl.classList.remove("xcv-invalid");
+  modelEl.classList.remove("xcv-invalid");
+
+  const err = validateConfig(cfg);
+  if (err) {
+    if (!cfg.baseUrl) baseUrlEl.classList.add("xcv-invalid");
+    if (!cfg.apiKey) apiKeyEl.classList.add("xcv-invalid");
+    if (!cfg.freeModels && !cfg.model) modelEl.classList.add("xcv-invalid");
+    statusEl.textContent = err;
+    statusEl.className = "xcv-status xcv-status--error";
+    log("error", "Config invalid: " + err);
+    return;
+  }
+
   window.Storage.saveConfig(cfg).then(() => {
     statusEl.textContent = "Saved";
     statusEl.className = "xcv-status xcv-status--ok";
@@ -507,6 +550,7 @@ async function handleTranscript(text) {
   } else {
     log("req", "Model: " + model);
   }
+  cfg.model = model;
 
   try {
     const mermaid = await window.LLM.complete(cfg, messages);
