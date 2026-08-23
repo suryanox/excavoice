@@ -68,7 +68,3 @@ Parser
   ↓
 Excalidraw Elements
 ```
-
-## Initial Scope
-
-The first version should focus on basic flowcharts and simple diagrams. More Mermaid diagram types can be added later.

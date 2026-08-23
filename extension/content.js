@@ -47,7 +47,7 @@ const styles = `
 }
 
 .xcv-panel {
-  width: 280px;
+  width: 300px;
   background: #26262b;
   border: 1px solid #3a3a42;
   border-radius: 12px;
@@ -107,6 +107,29 @@ const styles = `
   font-style: italic;
 }
 
+.xcv-result {
+  margin: 10px 0 0;
+  padding: 8px;
+  background: #1b1b1f;
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #9fe6b0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.xcv-result[hidden] {
+  display: none;
+}
+
+.xcv-result--error {
+  color: #e0566f;
+}
+
 .xcv-panel__footer {
   display: flex;
   align-items: center;
@@ -138,6 +161,7 @@ widget.innerHTML = `
     </div>
     <div class="xcv-panel__body">
       <p class="xcv-transcript" data-empty="Describe a diagram to draw…"></p>
+      <pre class="xcv-result" hidden></pre>
     </div>
     <div class="xcv-panel__footer">
       <span class="xcv-state">Idle</span>
@@ -155,11 +179,119 @@ const mic = widget.querySelector(".xcv-mic");
 const panel = widget.querySelector(".xcv-panel");
 const close = widget.querySelector(".xcv-close");
 const state = widget.querySelector(".xcv-state");
+const transcriptEl = widget.querySelector(".xcv-transcript");
+const resultEl = widget.querySelector(".xcv-result");
 
-// UI only: toggle states and controls without business logic.
-// Recording / speech / diagram rendering will be added later.
+let recognition = null;
+let listening = false;
+let finalText = "";
+let freeIdx = 0;
+let freeModelsList = null;
+
+async function ensureFreeModels(cfg) {
+  if (freeModelsList) return freeModelsList;
+  try {
+    freeModelsList = await window.OpenRouter.fetchFreeModels(cfg.baseUrl, cfg.apiKey);
+  } catch (e) {
+    freeModelsList = window.OpenRouter.FALLBACK_FREE_MODELS;
+  }
+  return freeModelsList;
+}
+
+function pickFreeModel() {
+  const list =
+    freeModelsList && freeModelsList.length
+      ? freeModelsList
+      : window.OpenRouter.FALLBACK_FREE_MODELS;
+  const m = list[freeIdx % list.length];
+  freeIdx++;
+  return m;
+}
+
+function startListening() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    state.textContent = "Speech API unavailable";
+    return;
+  }
+
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = navigator.language || "en-US";
+
+  recognition.onresult = (event) => {
+    let interim = "";
+    finalText = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const r = event.results[i];
+      if (r.isFinal) finalText += r[0].transcript;
+      else interim += r[0].transcript;
+    }
+    transcriptEl.textContent = (finalText + interim).trim();
+  };
+
+  recognition.onerror = (event) => {
+    state.textContent = "Speech error: " + event.error;
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    mic.classList.remove("xcv-mic--active");
+    if (finalText.trim()) {
+      state.textContent = "Generating…";
+      handleTranscript(finalText.trim());
+    } else {
+      state.textContent = "Idle";
+    }
+  };
+
+  finalText = "";
+  transcriptEl.textContent = "";
+  resultEl.hidden = true;
+  resultEl.textContent = "";
+  resultEl.classList.remove("xcv-result--error");
+  recognition.start();
+  listening = true;
+  state.textContent = "Listening…";
+}
+
+async function handleTranscript(text) {
+  const cfg = await window.Storage.getConfig();
+  if (!cfg || !cfg.baseUrl || !cfg.apiKey) {
+    state.textContent = "Configure LLM in popup";
+    resultEl.hidden = false;
+    resultEl.classList.add("xcv-result--error");
+    resultEl.textContent = "Missing API configuration. Open the ExcaVoice popup and save your settings.";
+    return;
+  }
+
+  const messages = window.Prompt.buildMessages(text);
+  if (cfg.freeModels) {
+    await ensureFreeModels(cfg);
+    cfg.model = pickFreeModel();
+  }
+
+  try {
+    const mermaid = await window.LLM.complete(cfg, messages);
+    resultEl.hidden = false;
+    resultEl.classList.remove("xcv-result--error");
+    resultEl.textContent = mermaid;
+    state.textContent = "Done";
+    // TODO: convert mermaid -> Excalidraw elements and draw on canvas.
+  } catch (err) {
+    state.textContent = "LLM error";
+    resultEl.hidden = false;
+    resultEl.classList.add("xcv-result--error");
+    resultEl.textContent = String((err && err.message) || err);
+  }
+}
 
 mic.addEventListener("click", () => {
+  if (listening) {
+    if (recognition) recognition.stop();
+    return;
+  }
   const open = !panel.hasAttribute("hidden");
   if (open) {
     panel.setAttribute("hidden", "");
@@ -168,12 +300,13 @@ mic.addEventListener("click", () => {
   } else {
     panel.removeAttribute("hidden");
     mic.classList.add("xcv-mic--active");
-    state.textContent = "Listening…";
+    startListening();
   }
 });
 
 close.addEventListener("click", () => {
   panel.setAttribute("hidden", "");
+  if (recognition) recognition.stop();
   mic.classList.remove("xcv-mic--active");
   state.textContent = "Idle";
 });

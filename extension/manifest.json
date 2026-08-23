@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["https://excalidraw.com/*"],
-      "js": ["content.js"],
+      "js": ["lib/storage.js", "lib/prompt.js", "lib/openrouter.js", "lib/llm.js", "content.js"],
       "run_at": "document_idle"
     }
   ]
