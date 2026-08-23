@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "description": "Speak a diagram description and render the generated Mermaid diagram on Excalidraw.",
   "action": {
-    "default_popup": "popup.html",
     "default_title": "ExcaVoice",
     "default_icon": {
       "16": "icons/icon16.png",
