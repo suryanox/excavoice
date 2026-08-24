@@ -25,12 +25,13 @@ export function App() {
     <Box
       sx={{
         position: "fixed",
-        right: 20,
-        bottom: 20,
+        bottom: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
         zIndex: 2147483647,
         display: "flex",
         flexDirection: "column",
-        alignItems: "flex-end",
+        alignItems: "center",
         gap: 1,
       }}
     >
