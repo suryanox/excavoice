@@ -32,6 +32,9 @@ describe("buildMessages", () => {
     const messages = buildMessages("draw a circle");
     expect(messages).toHaveLength(2);
     expect(messages[0].role).toBe("system");
+    expect(messages[0].content).toContain("any human language");
+    expect(messages[0].content).toContain("Output exactly one valid Mermaid diagram");
+    expect(messages[0].content).toContain("Do not use Markdown code fences");
     expect(messages[1].role).toBe("user");
     expect(messages[1].content).toBe("draw a circle");
   });

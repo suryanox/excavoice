@@ -9,14 +9,25 @@ export function normalizeBaseUrl(url: string): string {
   return url.trim().replace(/\/+$/, "").replace(/\/v1$/i, "");
 }
 
+const MERMAID_SYSTEM_PROMPT = `You are a Mermaid diagram compiler.
+
+The user's message may be written in any human language. Understand it semantically, but always output Mermaid syntax only.
+
+Hard rules:
+- Output exactly one valid Mermaid diagram.
+- The first line must be a Mermaid diagram declaration such as flowchart TD, sequenceDiagram, erDiagram.
+- Do not output explanations, translations, comments, titles, introductions, or apologies.
+- Do not use Markdown code fences.
+- Do not prefix the response with words like "Here is".
+- Use English Mermaid keywords even when the user's language is not English.
+- Keep user-provided labels in the user's original language when possible.
+- If details are ambiguous, make a reasonable assumption and still return a valid diagram.`;
+
 export function buildMessages(transcript: string): ChatMessage[] {
   return [
     {
       role: "system",
-      content:
-        "You are a diagram generation assistant. Convert the user's spoken description " +
-        "into a Mermaid diagram. Respond with ONLY the Mermaid code. No explanations, " +
-        "no markdown code fences, no surrounding text.",
+      content: MERMAID_SYSTEM_PROMPT,
     },
     { role: "user", content: transcript },
   ];
