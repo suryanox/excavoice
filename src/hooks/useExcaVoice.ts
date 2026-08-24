@@ -11,26 +11,17 @@ export interface LogEntry {
   msg: string;
 }
 
-function pauseSecondsOf(cfg: ExcaVoiceConfig): number {
-  const raw = cfg.pauseSeconds;
-  if (raw === "" || raw == null) return 5;
-  const s = Number(raw);
-  return isNaN(s) || s < 0 ? 0 : s;
-}
-
 export function useExcaVoice() {
   const [baseUrl, setBaseUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
   const [freeModels, setFreeModels] = useState(false);
-  const [pauseSeconds, setPauseSeconds] = useState("5");
   const [status, setStatus] = useState<{ text: string; ok: boolean } | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [live, setLive] = useState("");
   const [listening, setListening] = useState(false);
 
   const stopRef = useRef<(() => void) | null>(null);
-  const genTimer = useRef<number | null>(null);
   const freeIdx = useRef(0);
   const modelList = useRef<string[] | null>(null);
 
@@ -46,7 +37,6 @@ export function useExcaVoice() {
         setApiKey(c.apiKey || "");
         setModel(c.model || "");
         setFreeModels(!!c.freeModels);
-        setPauseSeconds(c.pauseSeconds != null && c.pauseSeconds !== "" ? c.pauseSeconds : "5");
       }
     });
     setStatus(null);
@@ -56,12 +46,6 @@ export function useExcaVoice() {
     if (!cfg.baseUrl) return "API base URL is required.";
     if (!cfg.apiKey) return "API key is required.";
     if (!cfg.freeModels && !cfg.model) return "Model is required unless free models is enabled.";
-    if (
-      cfg.pauseSeconds !== "" &&
-      (isNaN(Number(cfg.pauseSeconds)) || Number(cfg.pauseSeconds) < 0)
-    ) {
-      return "Generate after pause must be a number ≥ 0.";
-    }
     return null;
   };
 
@@ -71,7 +55,6 @@ export function useExcaVoice() {
       apiKey: apiKey.trim(),
       model: model.trim(),
       freeModels,
-      pauseSeconds: pauseSeconds.trim(),
     };
     const err = validate(cfg);
     if (err) {
@@ -107,71 +90,55 @@ export function useExcaVoice() {
 
     const messages = buildMessages(text);
 
-    const generate = async () => {
-      let mermaid = "";
-      if (cfg.freeModels) {
-        await ensureModels(cfg);
-        const list = modelList.current ?? [];
-        if (list.length === 0) {
-          log("error", "No models available. Check your /v1/models endpoint.");
-          return;
-        }
-        const maxTries = Math.min(4, list.length);
-        let tried = 0;
-        let idx = freeIdx.current % list.length;
-        while (tried < maxTries) {
-          const model = list[idx];
-          freeIdx.current = (idx + 1) % list.length;
-          cfg.model = model;
-          log("req", "Using model: " + model);
-          tried++;
-          try {
-            mermaid = await complete(cfg, messages);
-            log("success", "Generation successful.");
-            break;
-          } catch (err) {
-            log("error", `Model ${model} failed: ${String((err as Error)?.message || err)}`);
-          }
-          idx = freeIdx.current % list.length;
-        }
-        if (!mermaid) {
-          log("error", `All ${tried} free model(s) failed.`);
-          return;
-        }
-      } else {
-        log("req", "Model: " + cfg.model);
+    let mermaid = "";
+    if (cfg.freeModels) {
+      await ensureModels(cfg);
+      const list = modelList.current ?? [];
+      if (list.length === 0) {
+        log("error", "No models available. Check your /v1/models endpoint.");
+        return;
+      }
+      const maxTries = Math.min(4, list.length);
+      let tried = 0;
+      let idx = freeIdx.current % list.length;
+      while (tried < maxTries) {
+        const model = list[idx];
+        freeIdx.current = (idx + 1) % list.length;
+        cfg.model = model;
+        log("req", "Using model: " + model);
+        tried++;
         try {
           mermaid = await complete(cfg, messages);
           log("success", "Generation successful.");
+          break;
         } catch (err) {
-          log("error", String((err as Error)?.message || err));
-          return;
+          log("error", `Model ${model} failed: ${String((err as Error)?.message || err)}`);
         }
+        idx = freeIdx.current % list.length;
       }
-
-      try {
-        genTimer.current = null;
-        await sendToExcalidraw(mermaid);
-      } catch (err) {
-        log("error", "Failed to insert diagram into Excalidraw: " + String((err as Error)?.message || err));
+      if (!mermaid) {
+        log("error", `All ${tried} free model(s) failed.`);
+        return;
       }
-    };
-
-    const secs = pauseSecondsOf(cfg);
-    if (secs > 0) {
-      log("info", "Pause detected — generating in " + secs + "s. Press Describe to cancel.");
-      if (genTimer.current) window.clearTimeout(genTimer.current);
-      genTimer.current = window.setTimeout(() => generate(), secs * 1000);
     } else {
-      generate();
+      log("req", "Model: " + cfg.model);
+      try {
+        mermaid = await complete(cfg, messages);
+        log("success", "Generation successful.");
+      } catch (err) {
+        log("error", String((err as Error)?.message || err));
+        return;
+      }
+    }
+
+    try {
+      await sendToExcalidraw(mermaid);
+    } catch (err) {
+      log("error", "Failed to insert diagram into Excalidraw: " + String((err as Error)?.message || err));
     }
   };
 
   const startListening = (onOpenLogs: () => void) => {
-    if (genTimer.current) {
-      window.clearTimeout(genTimer.current);
-      genTimer.current = null;
-    }
     onOpenLogs();
     setLive("");
     stopRef.current = startTranscription({
@@ -210,8 +177,6 @@ export function useExcaVoice() {
     setModel,
     freeModels,
     setFreeModels,
-    pauseSeconds,
-    setPauseSeconds,
     status,
     logs,
     live,

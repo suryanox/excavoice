@@ -64,8 +64,6 @@ export function App() {
               setModel={xv.setModel}
               freeModels={xv.freeModels}
               setFreeModels={xv.setFreeModels}
-              pauseSeconds={xv.pauseSeconds}
-              setPauseSeconds={xv.setPauseSeconds}
               status={xv.status}
               onSave={xv.onSave}
             />

@@ -9,8 +9,6 @@ interface ConfigPanelProps {
   setModel: (v: string) => void;
   freeModels: boolean;
   setFreeModels: (v: boolean) => void;
-  pauseSeconds: string;
-  setPauseSeconds: (v: string) => void;
   status: { text: string; ok: boolean } | null;
   onSave: () => void;
 }
@@ -64,16 +62,6 @@ export function ConfigPanel(props: ConfigPanelProps) {
             Use OpenRouter free models
           </Typography>
         }
-      />
-      <TextField
-        label="Generate after pause (seconds)"
-        type="number"
-        value={props.pauseSeconds}
-        onChange={(e) => props.setPauseSeconds(e.target.value)}
-        size="small"
-        fullWidth
-        placeholder="5"
-        {...fieldSx}
       />
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography

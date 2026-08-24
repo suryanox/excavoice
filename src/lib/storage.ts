@@ -3,7 +3,6 @@ export interface ExcaVoiceConfig {
   apiKey: string;
   model: string;
   freeModels: boolean;
-  pauseSeconds: string;
 }
 
 const KEY = "xcv-config";
