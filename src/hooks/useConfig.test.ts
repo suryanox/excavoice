@@ -45,7 +45,8 @@ describe("useConfig", () => {
       result.current.setBaseUrl(" http://x ");
       result.current.setApiKey("k");
       result.current.setModel("m");
-      result.current.setFreeModels(false);
+      result.current.setFreeModels(true);
+      result.current.setLanguage("fr");
     });
     act(() => result.current.save());
 
@@ -53,7 +54,8 @@ describe("useConfig", () => {
       baseUrl: "http://x",
       apiKey: "k",
       model: "m",
-      freeModels: false,
+      freeModels: true,
+      language: "fr",
     });
     await waitFor(() => expect(result.current.status?.ok).toBe(true));
     expect(logger.success).toHaveBeenCalled();
@@ -76,11 +78,14 @@ describe("useConfig", () => {
       apiKey: "k",
       model: "m",
       freeModels: true,
+      language: "ja",
     });
     const { result } = renderHook(() => useConfig(logger));
     act(() => result.current.load());
 
     await waitFor(() => expect(result.current.baseUrl).toBe("b"));
     expect(result.current.freeModels).toBe(true);
+    expect(result.current.model).toBe("m");
+    expect(result.current.language).toBe("ja");
   });
 });

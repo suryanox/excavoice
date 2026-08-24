@@ -45,7 +45,7 @@ export interface TranscriptHandlers {
   onError?: (error: string) => void;
 }
 
-export function startTranscription(handlers: TranscriptHandlers): () => void {
+export function startTranscription(handlers: TranscriptHandlers, lang: string): () => void {
   const Ctor = getSpeechRecognition();
   if (!Ctor) {
     handlers.onError?.("Speech API unavailable");
@@ -55,7 +55,7 @@ export function startTranscription(handlers: TranscriptHandlers): () => void {
   const recognition = new Ctor();
   recognition.continuous = false;
   recognition.interimResults = true;
-  recognition.lang = navigator.language || "en-US";
+  recognition.lang = lang;
 
   let finalText = "";
 

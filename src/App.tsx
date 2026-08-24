@@ -50,6 +50,8 @@ export function App() {
               setModel={xv.setModel}
               freeModels={xv.freeModels}
               setFreeModels={xv.setFreeModels}
+              language={xv.language}
+              setLanguage={xv.setLanguage}
               status={xv.status}
               onSave={xv.onSave}
             />

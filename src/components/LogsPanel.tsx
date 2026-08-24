@@ -1,4 +1,5 @@
 import { Box, Stack } from "@mui/material";
+import { useEffect, useRef } from "react";
 import type { LogEntry } from "../lib/logger";
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -15,6 +16,15 @@ interface LogsPanelProps {
 }
 
 export function LogsPanel({ logs, live }: LogsPanelProps) {
+  const logContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const logContainer = logContainerRef.current;
+    if (logContainer) {
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+  }, [logs]);
+
   return (
     <Stack spacing={1}>
       <Box
@@ -31,6 +41,9 @@ export function LogsPanel({ logs, live }: LogsPanelProps) {
         {live || "Press the mic and describe your diagram…"}
       </Box>
       <Box
+        ref={logContainerRef}
+        role="log"
+        aria-label="Log entries"
         sx={{
           maxHeight: 220,
           overflow: "auto",

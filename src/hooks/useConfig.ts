@@ -16,6 +16,8 @@ export interface ConfigState {
   setModel: (v: string) => void;
   freeModels: boolean;
   setFreeModels: (v: boolean) => void;
+  language: string;
+  setLanguage: (v: string) => void;
   status: SaveStatus | null;
   load: () => void;
   save: () => void;
@@ -35,6 +37,7 @@ export function useConfig(logger: Logger): ConfigState {
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
   const [freeModels, setFreeModels] = useState(false);
+  const [language, setLanguage] = useState("en");
   const [status, setStatus] = useState<SaveStatus | null>(null);
 
   const load = useCallback(() => {
@@ -44,6 +47,7 @@ export function useConfig(logger: Logger): ConfigState {
         setApiKey(c.apiKey || "");
         setModel(c.model || "");
         setFreeModels(!!c.freeModels);
+        setLanguage(c.language || "en");
       }
     });
     setStatus(null);
@@ -55,6 +59,7 @@ export function useConfig(logger: Logger): ConfigState {
       apiKey: apiKey.trim(),
       model: model.trim(),
       freeModels,
+      language,
     };
 
     const err = validate(cfg);
@@ -69,7 +74,7 @@ export function useConfig(logger: Logger): ConfigState {
       logger.success("Configuration saved.");
       window.setTimeout(() => setStatus(null), 800);
     });
-  }, [baseUrl, apiKey, model, freeModels, logger]);
+  }, [baseUrl, apiKey, model, freeModels, language, logger]);
 
   return {
     baseUrl,
@@ -80,6 +85,8 @@ export function useConfig(logger: Logger): ConfigState {
     setModel,
     freeModels,
     setFreeModels,
+    language,
+    setLanguage,
     status,
     load,
     save,

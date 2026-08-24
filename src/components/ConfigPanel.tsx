@@ -1,6 +1,31 @@
-import { Button, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { useContext } from "react";
 import { ConfigField } from "./ConfigField";
 import type { SaveStatus } from "../hooks/useConfig";
+import { PortalContainerContext } from "./PortalContainerContext";
+
+const LANGUAGES: { code: string; label: string }[] = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Spanish (Español)" },
+  { code: "fr", label: "French (Français)" },
+  { code: "de", label: "German (Deutsch)" },
+  { code: "pt", label: "Portuguese (Português)" },
+  { code: "hi", label: "Hindi (हिन्दी)" },
+  { code: "ja", label: "Japanese (日本語)" },
+  { code: "zh", label: "Chinese (中文)" },
+  { code: "ru", label: "Russian (Русский)" },
+  { code: "ar", label: "Arabic (العربية)" },
+];
 
 interface ConfigPanelProps {
   baseUrl: string;
@@ -11,11 +36,20 @@ interface ConfigPanelProps {
   setModel: (v: string) => void;
   freeModels: boolean;
   setFreeModels: (v: boolean) => void;
+  language: string;
+  setLanguage: (v: string) => void;
   status: SaveStatus | null;
   onSave: () => void;
 }
 
 export function ConfigPanel(props: ConfigPanelProps) {
+  const portalContainer = useContext(PortalContainerContext);
+  const fieldSx = {
+    InputLabelProps: { style: { color: "#a0a0ab" } },
+    inputProps: { style: { color: "#ededf0" } },
+    SelectDisplayProps: { style: { color: "#ededf0" } },
+  };
+
   return (
     <Stack spacing={1.5}>
       <ConfigField
@@ -51,6 +85,39 @@ export function ConfigPanel(props: ConfigPanelProps) {
           </Typography>
         }
       />
+      <FormControl size="small" fullWidth>
+        <InputLabel sx={{ color: "#a0a0ab" }}>Language</InputLabel>
+        <Select
+          label="Language"
+          value={props.language}
+          onChange={(e) => props.setLanguage(e.target.value)}
+          MenuProps={{
+            container: portalContainer ?? undefined,
+            PaperProps: {
+              sx: {
+                bgcolor: "#26262b",
+                color: "#ededf0",
+              },
+            },
+          }}
+          {...fieldSx}
+        >
+          {LANGUAGES.map((l) => (
+            <MenuItem
+              key={l.code}
+              value={l.code}
+              sx={{
+                color: "#ededf0",
+                "&:hover": { bgcolor: "#333339" },
+                "&.Mui-selected": { bgcolor: "#333339" },
+                "&.Mui-selected:hover": { bgcolor: "#3b3b43" },
+              }}
+            >
+              {l.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography
           variant="caption"

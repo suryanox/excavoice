@@ -53,7 +53,7 @@ describe("useExcaVoice", () => {
 
     act(() => result.current.onMic(() => {}));
     expect(result.current.listening).toBe(true);
-    expect(startTranscriptionMock).toHaveBeenCalled();
+    expect(startTranscriptionMock).toHaveBeenCalledWith(expect.anything(), "en");
 
     act(() => handlers.onFinal?.("draw a flowchart"));
     await waitFor(() => expect(sendToExcalidrawMock).toHaveBeenCalledWith("graph TD"));

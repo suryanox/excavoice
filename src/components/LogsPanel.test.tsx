@@ -21,4 +21,17 @@ describe("LogsPanel", () => {
     render(<LogsPanel logs={[]} live="" />);
     expect(screen.getByText(/Press the mic/)).toBeInTheDocument();
   });
+
+  it("scrolls to the newest log entry when logs change", () => {
+    const { rerender } = render(<LogsPanel logs={[]} live="" />);
+    const logContainer = screen.getByRole("log");
+
+    Object.defineProperty(logContainer, "scrollHeight", {
+      configurable: true,
+      value: 480,
+    });
+    rerender(<LogsPanel logs={logs} live="" />);
+
+    expect(logContainer.scrollTop).toBe(480);
+  });
 });

@@ -57,23 +57,26 @@ export function useExcaVoice() {
     (onOpenLogs: () => void) => {
       onOpenLogs();
       setLive("");
-      stopRef.current = startTranscription({
-        onStart: () => logger.info("Microphone permission granted. Listening…"),
-        onPartial: (t) => setLive(t),
-        onFinal: (t) => {
-          setListening(false);
-          logger.info("Transcript: " + t);
-          void handleTranscript(t);
+      stopRef.current = startTranscription(
+        {
+          onStart: () => logger.info("Microphone permission granted. Listening…"),
+          onPartial: (t) => setLive(t),
+          onFinal: (t) => {
+            setListening(false);
+            logger.info("Transcript: " + t);
+            void handleTranscript(t);
+          },
+          onError: (e) => {
+            setListening(false);
+            logger.error("Speech error: " + e);
+          },
         },
-        onError: (e) => {
-          setListening(false);
-          logger.error("Speech error: " + e);
-        },
-      });
+        config.language,
+      );
       setListening(true);
       logger.info("Waiting for microphone permission…");
     },
-    [logger, handleTranscript],
+    [logger, handleTranscript, config.language],
   );
 
   const onMic = useCallback(
