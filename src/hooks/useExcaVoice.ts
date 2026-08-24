@@ -98,28 +98,6 @@ export function useExcaVoice() {
     return modelList.current;
   };
 
-  const pickModel = (): string => {
-    const list = modelList.current ?? [];
-    if (list.length === 0) return "";
-    const m = list[freeIdx.current % list.length];
-    freeIdx.current++;
-    return m;
-  };
-
-  const runGeneration = async (
-    cfg: ExcaVoiceConfig,
-    messages: ReturnType<typeof buildMessages>,
-  ) => {
-    genTimer.current = null;
-    try {
-      const mermaid = await complete(cfg, messages);
-      log("success", "Generation successful.");
-      await sendToExcalidraw(mermaid);
-    } catch (err) {
-      log("error", String((err as Error)?.message || err));
-    }
-  };
-
   const handleTranscript = async (text: string) => {
     const cfg = await getConfig();
     if (!cfg || !cfg.baseUrl || !cfg.apiKey) {
@@ -128,27 +106,64 @@ export function useExcaVoice() {
     }
 
     const messages = buildMessages(text);
-    let m = cfg.model;
-    if (cfg.freeModels) {
-      await ensureModels(cfg);
-      m = pickModel();
-      if (!m) {
-        log("error", "No models available. Check your /v1/models endpoint.");
-        return;
+
+    const generate = async () => {
+      let mermaid = "";
+      if (cfg.freeModels) {
+        await ensureModels(cfg);
+        const list = modelList.current ?? [];
+        if (list.length === 0) {
+          log("error", "No models available. Check your /v1/models endpoint.");
+          return;
+        }
+        const maxTries = Math.min(4, list.length);
+        let tried = 0;
+        let idx = freeIdx.current % list.length;
+        while (tried < maxTries) {
+          const model = list[idx];
+          freeIdx.current = (idx + 1) % list.length;
+          cfg.model = model;
+          log("req", "Using model: " + model);
+          tried++;
+          try {
+            mermaid = await complete(cfg, messages);
+            log("success", "Generation successful.");
+            break;
+          } catch (err) {
+            log("error", `Model ${model} failed: ${String((err as Error)?.message || err)}`);
+          }
+          idx = freeIdx.current % list.length;
+        }
+        if (!mermaid) {
+          log("error", `All ${tried} free model(s) failed.`);
+          return;
+        }
+      } else {
+        log("req", "Model: " + cfg.model);
+        try {
+          mermaid = await complete(cfg, messages);
+          log("success", "Generation successful.");
+        } catch (err) {
+          log("error", String((err as Error)?.message || err));
+          return;
+        }
       }
-      log("req", "Using model: " + m);
-    } else {
-      log("req", "Model: " + m);
-    }
-    cfg.model = m;
+
+      try {
+        genTimer.current = null;
+        await sendToExcalidraw(mermaid);
+      } catch (err) {
+        log("error", "Failed to insert diagram into Excalidraw: " + String((err as Error)?.message || err));
+      }
+    };
 
     const secs = pauseSecondsOf(cfg);
     if (secs > 0) {
       log("info", "Pause detected — generating in " + secs + "s. Press Describe to cancel.");
       if (genTimer.current) window.clearTimeout(genTimer.current);
-      genTimer.current = window.setTimeout(() => runGeneration(cfg, messages), secs * 1000);
+      genTimer.current = window.setTimeout(() => generate(), secs * 1000);
     } else {
-      runGeneration(cfg, messages);
+      generate();
     }
   };
 
