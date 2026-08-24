@@ -1,5 +1,10 @@
 import { useCallback, useState } from "react";
-import { getConfig, saveConfig, type ExcaVoiceConfig } from "../lib/storage";
+import {
+  DEFAULT_CONFIG,
+  getConfig,
+  saveConfig,
+  type ExcaVoiceConfig,
+} from "../lib/storage";
 import type { Logger } from "../lib/logger";
 
 export interface SaveStatus {
@@ -33,21 +38,29 @@ function validate(cfg: ExcaVoiceConfig): string | null {
 }
 
 export function useConfig(logger: Logger): ConfigState {
-  const [baseUrl, setBaseUrl] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("");
-  const [freeModels, setFreeModels] = useState(false);
-  const [language, setLanguage] = useState("en");
+  const [config, setConfig] = useState<ExcaVoiceConfig>(() => ({ ...DEFAULT_CONFIG }));
   const [status, setStatus] = useState<SaveStatus | null>(null);
+
+  const updateField = useCallback(
+    <K extends keyof ExcaVoiceConfig>(field: K, value: ExcaVoiceConfig[K]) => {
+      setConfig((current) => ({ ...current, [field]: value }));
+    },
+    [],
+  );
+
+  const setBaseUrl = useCallback((value: string) => updateField("baseUrl", value), [updateField]);
+  const setApiKey = useCallback((value: string) => updateField("apiKey", value), [updateField]);
+  const setModel = useCallback((value: string) => updateField("model", value), [updateField]);
+  const setFreeModels = useCallback(
+    (value: boolean) => updateField("freeModels", value),
+    [updateField],
+  );
+  const setLanguage = useCallback((value: string) => updateField("language", value), [updateField]);
 
   const load = useCallback(() => {
     void getConfig().then((c) => {
       if (c) {
-        setBaseUrl(c.baseUrl || "");
-        setApiKey(c.apiKey || "");
-        setModel(c.model || "");
-        setFreeModels(!!c.freeModels);
-        setLanguage(c.language || "en");
+        setConfig({ ...DEFAULT_CONFIG, ...c });
       }
     });
     setStatus(null);
@@ -55,11 +68,10 @@ export function useConfig(logger: Logger): ConfigState {
 
   const save = useCallback(() => {
     const cfg: ExcaVoiceConfig = {
-      baseUrl: baseUrl.trim(),
-      apiKey: apiKey.trim(),
-      model: model.trim(),
-      freeModels,
-      language,
+      ...config,
+      baseUrl: config.baseUrl.trim(),
+      apiKey: config.apiKey.trim(),
+      model: config.model.trim(),
     };
 
     const err = validate(cfg);
@@ -74,18 +86,14 @@ export function useConfig(logger: Logger): ConfigState {
       logger.success("Configuration saved.");
       window.setTimeout(() => setStatus(null), 800);
     });
-  }, [baseUrl, apiKey, model, freeModels, language, logger]);
+  }, [config, logger]);
 
   return {
-    baseUrl,
+    ...config,
     setBaseUrl,
-    apiKey,
     setApiKey,
-    model,
     setModel,
-    freeModels,
     setFreeModels,
-    language,
     setLanguage,
     status,
     load,

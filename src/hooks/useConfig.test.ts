@@ -7,6 +7,13 @@ const { getConfigMock, saveConfigMock } = vi.hoisted(() => ({
   saveConfigMock: vi.fn(),
 }));
 vi.mock("../lib/storage", () => ({
+  DEFAULT_CONFIG: {
+    baseUrl: "",
+    apiKey: "",
+    model: "",
+    freeModels: false,
+    language: "en",
+  },
   getConfig: (...args: unknown[]) => getConfigMock(...args),
   saveConfig: (...args: unknown[]) => saveConfigMock(...args),
 }));

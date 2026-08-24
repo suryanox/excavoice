@@ -7,7 +7,7 @@ export interface ExcaVoiceConfig {
 }
 
 const KEY = "xcv-config";
-const DEFAULT_CONFIG: ExcaVoiceConfig = {
+export const DEFAULT_CONFIG: ExcaVoiceConfig = {
   baseUrl: "",
   apiKey: "",
   model: "",
