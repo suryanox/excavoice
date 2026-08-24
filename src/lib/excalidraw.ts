@@ -1,6 +1,3 @@
-// Drives Excalidraw's own toolbar menu to insert a Mermaid diagram.
-// Each UI interaction is isolated in its own method so the flow is easy to
-// follow and the individual steps can be reused or replaced independently.
 export class ExcalidrawAutomator {
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -12,13 +9,22 @@ export class ExcalidrawAutomator {
   }
 
   private async clickByText(selector: string, regex: RegExp): Promise<HTMLElement> {
+    const el = await this.tryClickByText(selector, regex);
+    if (!el) throw new Error(`Could not find element ${selector} matching ${regex}`);
+    return el;
+  }
+
+  private async tryClickByText(
+    selector: string,
+    regex: RegExp,
+  ): Promise<HTMLElement | null> {
     const els = Array.from(document.querySelectorAll(selector)).filter((e) =>
       this.isVisible(e),
     );
     const el = els.find((e) =>
       regex.test((e.textContent || "").replace(/\s+/g, " ").trim()),
     );
-    if (!el) throw new Error(`Could not find element ${selector} matching ${regex}`);
+    if (!el) return null;
     (el as HTMLElement).click();
     return el as HTMLElement;
   }
@@ -34,9 +40,6 @@ export class ExcalidrawAutomator {
     return btn;
   }
 
-  // Replace the contents of a CodeMirror 6 editor (.cm-content, contenteditable)
-  // by selecting all and inserting via execCommand so React/CM receive proper
-  // input events. Falls back to a plain textarea if no CM editor is present.
   private setEditorContent(value: string): void {
     const cm = document.querySelector<HTMLElement>(".cm-content[contenteditable]");
     if (cm) {
@@ -81,12 +84,8 @@ export class ExcalidrawAutomator {
   }
 
   private async ensureMermaidTab(): Promise<void> {
-    try {
-      await this.clickByText("button", /^mermaid$/i);
-      await this.sleep(200);
-    } catch {
-      // Already on the Mermaid tab or no tab switcher.
-    }
+    await this.tryClickByText("button", /^mermaid$/i);
+    await this.sleep(200);
 
     if (
       !document.querySelector(".cm-content[contenteditable]") &&

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Stack } from "@mui/material";
+import { Box } from "@mui/material";
 import { useExcaVoice } from "./hooks/useExcaVoice";
 import { Chip } from "./components/Chip";
 import { ConfigPanel } from "./components/ConfigPanel";

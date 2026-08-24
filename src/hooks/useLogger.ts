@@ -3,8 +3,6 @@ import type { Logger, LogEntry } from "../lib/logger";
 
 export type LoggerState = Logger & { logs: LogEntry[] };
 
-// Owns the log history and exposes a stable Logger implementation built on top
-// of it. Memoized so the Logger reference is referentially stable across renders.
 export function useLogger(): LoggerState {
   const [logs, setLogs] = useState<LogEntry[]>([]);
 

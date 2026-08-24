@@ -1,8 +1,5 @@
 import { fetchModels } from "./models";
 
-// Strategy: resolves the ordered list of candidate models for a generation.
-// Implementations decide where models come from (a fixed value, or discovered
-// dynamically from the proxy's /v1/models endpoint).
 export interface ModelProvider {
   list(): Promise<string[]>;
 }

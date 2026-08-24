@@ -5,10 +5,6 @@ export interface ChatMessage {
   content: string;
 }
 
-// litellm-client already prepends "/v1" to its API paths, so a base URL that
-// already ends with "/v1" would produce a doubled "/v1/models" (404). Strip a
-// trailing "/v1" (accepting either form) so users can paste the full
-// OpenAI-compatible base URL.
 export function normalizeBaseUrl(url: string): string {
   return url.trim().replace(/\/+$/, "").replace(/\/v1$/i, "");
 }

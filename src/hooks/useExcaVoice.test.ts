@@ -48,8 +48,6 @@ describe("useExcaVoice", () => {
 
     const { result } = renderHook(() => useExcaVoice());
 
-    // Config must be loaded before listening, so the generation service is
-    // built with a real model (mirrors opening the gear, then pressing Describe).
     act(() => result.current.showConfig());
     await waitFor(() => expect(result.current.model).toBe("m"));
 
@@ -81,7 +79,7 @@ describe("useExcaVoice", () => {
   });
 
   it("stops listening when mic is pressed again", () => {
-    let stop = vi.fn();
+    const stop = vi.fn();
     startTranscriptionMock.mockReturnValue(stop);
 
     const { result } = renderHook(() => useExcaVoice());

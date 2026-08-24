@@ -30,8 +30,6 @@ function validate(cfg: ExcaVoiceConfig): string | null {
   return null;
 }
 
-// Owns API configuration state plus load/save behaviour. The Logger is injected
-// so config feedback is reported through the same channel as the rest of the app.
 export function useConfig(logger: Logger): ConfigState {
   const [baseUrl, setBaseUrl] = useState("");
   const [apiKey, setApiKey] = useState("");

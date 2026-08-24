@@ -16,8 +16,6 @@ export function useExcaVoice() {
 
   const stopRef = useRef<(() => void) | null>(null);
 
-  // Built once per configuration and kept stable so the round-robin cursor in
-  // DiagramService persists across multiple generations.
   const service = useMemo(
     () =>
       new DiagramService(

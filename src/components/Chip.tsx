@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Stack } from "@mui/material";
+import { Button, IconButton, Stack } from "@mui/material";
 import MicIcon from "@mui/icons-material/Mic";
 import SettingsIcon from "@mui/icons-material/Settings";
 

@@ -8,7 +8,6 @@ interface PanelProps {
   children: ReactNode;
 }
 
-// Reusable floating container used for both the config and logs views.
 export function Panel({ title, onClose, children }: PanelProps) {
   return (
     <Paper

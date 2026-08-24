@@ -5,9 +5,6 @@ import { formatError } from "../lib/logger";
 
 export class DiagramGenerationError extends Error {}
 
-// Orchestrates model selection + completion with round-robin retry/fallback.
-// Depends only on abstractions (ModelProvider, Logger) so it is testable and
-// free of React/extension concerns.
 export class DiagramService {
   private cursor = 0;
 
@@ -27,7 +24,6 @@ export class DiagramService {
     }
 
     const attempts = Math.min(this.maxTries, models.length);
-    let lastError: unknown;
 
     for (let i = 0; i < attempts; i++) {
       const model = models[this.cursor % models.length];
@@ -39,7 +35,6 @@ export class DiagramService {
         this.logger.success("Generation successful.");
         return mermaid;
       } catch (err) {
-        lastError = err;
         this.logger.error(`Model ${model} failed: ${formatError(err)}`);
       }
     }

@@ -8,8 +8,6 @@ interface ConfigFieldProps {
   placeholder?: string;
 }
 
-// Themed text field used throughout the config form, keeping the dark-theme
-// styling in a single reusable place.
 export function ConfigField({
   label,
   value,

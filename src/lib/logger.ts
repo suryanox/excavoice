@@ -6,8 +6,6 @@ export interface LogEntry {
   msg: string;
 }
 
-// Minimal logging contract so consumers (hooks, services) stay decoupled
-// from the concrete React state implementation.
 export interface Logger {
   info(msg: string): void;
   req(msg: string): void;
