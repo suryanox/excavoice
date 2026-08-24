@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Box, IconButton, Paper, Stack, Typography } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Stack } from "@mui/material";
 import { useExcaVoice } from "./hooks/useExcaVoice";
 import { Chip } from "./components/Chip";
 import { ConfigPanel } from "./components/ConfigPanel";
 import { LogsPanel } from "./components/LogsPanel";
+import { Panel } from "./components/Panel";
 
 export function App() {
   const [view, setView] = useState<"none" | "config" | "logs">("none");
@@ -35,25 +35,10 @@ export function App() {
       }}
     >
       {view !== "none" && (
-        <Paper
-          sx={{
-            width: 320,
-            p: 1.5,
-            bgcolor: "#26262b",
-            color: "#ededf0",
-            borderRadius: 2,
-            boxShadow: 6,
-          }}
+        <Panel
+          title={view === "config" ? "Configuration" : "Logs"}
+          onClose={() => setView("none")}
         >
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {view === "config" ? "Configuration" : "Logs"}
-            </Typography>
-            <IconButton size="small" onClick={() => setView("none")} sx={{ color: "#a0a0ab" }}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Stack>
-
           {view === "config" ? (
             <ConfigPanel
               baseUrl={xv.baseUrl}
@@ -70,7 +55,7 @@ export function App() {
           ) : (
             <LogsPanel logs={xv.logs} live={xv.live} />
           )}
-        </Paper>
+        </Panel>
       )}
 
       <Chip

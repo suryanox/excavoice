@@ -1,4 +1,6 @@
-import { Button, Checkbox, FormControlLabel, Stack, TextField, Typography } from "@mui/material";
+import { Button, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
+import { ConfigField } from "./ConfigField";
+import type { SaveStatus } from "../hooks/useConfig";
 
 interface ConfigPanelProps {
   baseUrl: string;
@@ -9,45 +11,31 @@ interface ConfigPanelProps {
   setModel: (v: string) => void;
   freeModels: boolean;
   setFreeModels: (v: boolean) => void;
-  status: { text: string; ok: boolean } | null;
+  status: SaveStatus | null;
   onSave: () => void;
 }
 
 export function ConfigPanel(props: ConfigPanelProps) {
-  const fieldSx = {
-    InputLabelProps: { style: { color: "#a0a0ab" } },
-    inputProps: { style: { color: "#ededf0" } },
-  };
-
   return (
     <Stack spacing={1.5}>
-      <TextField
+      <ConfigField
         label="API base URL"
         value={props.baseUrl}
-        onChange={(e) => props.setBaseUrl(e.target.value)}
-        size="small"
-        fullWidth
+        onChange={props.setBaseUrl}
         placeholder="https://litellm.example.com"
-        {...fieldSx}
       />
-      <TextField
+      <ConfigField
         label="API key"
         type="password"
         value={props.apiKey}
-        onChange={(e) => props.setApiKey(e.target.value)}
-        size="small"
-        fullWidth
+        onChange={props.setApiKey}
         placeholder="sk-..."
-        {...fieldSx}
       />
-      <TextField
+      <ConfigField
         label="Model"
         value={props.model}
-        onChange={(e) => props.setModel(e.target.value)}
-        size="small"
-        fullWidth
+        onChange={props.setModel}
         placeholder="gpt-4o-mini"
-        {...fieldSx}
       />
       <FormControlLabel
         control={

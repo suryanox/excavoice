@@ -1,5 +1,5 @@
 import { Box, Stack } from "@mui/material";
-import type { LogEntry } from "../hooks/useExcaVoice";
+import type { LogEntry } from "../lib/logger";
 
 const LEVEL_COLOR: Record<string, string> = {
   info: "#a0a0ab",

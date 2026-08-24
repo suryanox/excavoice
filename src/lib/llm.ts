@@ -1,5 +1,4 @@
 import { LiteLLMClient } from "litellm-client";
-import type { ExcaVoiceConfig } from "./storage";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -27,17 +26,23 @@ export function buildMessages(transcript: string): ChatMessage[] {
   ];
 }
 
+export interface CompleteOptions {
+  baseUrl: string;
+  apiKey: string;
+  model: string;
+}
+
 export async function complete(
-  cfg: ExcaVoiceConfig,
+  opts: CompleteOptions,
   messages: ChatMessage[],
 ): Promise<string> {
   const client = new LiteLLMClient({
-    baseUrl: normalizeBaseUrl(cfg.baseUrl),
-    apiKey: cfg.apiKey,
+    baseUrl: normalizeBaseUrl(opts.baseUrl),
+    apiKey: opts.apiKey,
   });
 
   const res = await client.chat.completions.create({
-    model: cfg.model,
+    model: opts.model,
     messages: messages as unknown as Parameters<typeof client.chat.completions.create>[0]["messages"],
     temperature: 0,
   });
