@@ -19,7 +19,6 @@ export function App() {
     }
   };
 
-  const toggleLogs = () => setView(view === "logs" ? "none" : "logs");
   const openLogs = () => setView("logs");
 
   return (
@@ -81,7 +80,6 @@ export function App() {
         view={view}
         onMic={() => xv.onMic(openLogs)}
         onToggleConfig={toggleConfig}
-        onToggleLogs={toggleLogs}
       />
     </Box>
   );

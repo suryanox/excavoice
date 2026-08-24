@@ -1,17 +1,15 @@
 import { Box, Button, IconButton, Stack } from "@mui/material";
 import MicIcon from "@mui/icons-material/Mic";
 import SettingsIcon from "@mui/icons-material/Settings";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 
 interface ChipProps {
   listening: boolean;
   view: "none" | "config" | "logs";
   onMic: () => void;
   onToggleConfig: () => void;
-  onToggleLogs: () => void;
 }
 
-export function Chip({ listening, view, onMic, onToggleConfig, onToggleLogs }: ChipProps) {
+export function Chip({ listening, view, onMic, onToggleConfig }: ChipProps) {
   return (
     <Stack
       direction="row"
@@ -38,12 +36,6 @@ export function Chip({ listening, view, onMic, onToggleConfig, onToggleLogs }: C
         sx={{ color: view === "config" ? "#6965db" : "#a0a0ab" }}
       >
         <SettingsIcon />
-      </IconButton>
-      <IconButton
-        onClick={onToggleLogs}
-        sx={{ color: view === "logs" ? "#6965db" : "#a0a0ab" }}
-      >
-        <ListAltIcon />
       </IconButton>
     </Stack>
   );
