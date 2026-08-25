@@ -29,7 +29,7 @@ export function App() {
     <Box
       sx={{
         position: "fixed",
-        bottom: "20px",
+        bottom: "0px",
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 2147483647,
