@@ -33,9 +33,11 @@ describe("useConfig", () => {
     saveConfigMock.mockResolvedValue(undefined);
   });
 
-  it("reports an invalid config without persisting", () => {
+  it("reports an invalid config without persisting", async () => {
     const { result } = renderHook(() => useConfig(logger));
-    act(() => result.current.save());
+    await act(async () => {
+      await result.current.save();
+    });
 
     expect(result.current.status).toEqual({
       text: "API base URL is required.",
@@ -56,7 +58,9 @@ describe("useConfig", () => {
       result.current.setFreeModels(true);
       result.current.setLanguage("fr");
     });
-    act(() => result.current.save());
+    await act(async () => {
+      await result.current.save();
+    });
 
     expect(saveConfigMock).toHaveBeenCalledWith({
       baseUrl: "http://x",
@@ -70,14 +74,16 @@ describe("useConfig", () => {
     expect(logger.success).toHaveBeenCalled();
   });
 
-  it("requires a model unless free models is enabled", () => {
+  it("requires a model unless free models is enabled", async () => {
     const { result } = renderHook(() => useConfig(logger));
     act(() => {
       result.current.setBaseUrl("http://x");
       result.current.setApiKey("k");
       result.current.setFreeModels(false);
     });
-    act(() => result.current.save());
+    await act(async () => {
+      await result.current.save();
+    });
     expect(result.current.status?.text).toMatch(/Model is required/);
   });
 

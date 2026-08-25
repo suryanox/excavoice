@@ -27,7 +27,7 @@ export interface ConfigState {
   setPauseSeconds: (v: number) => void;
   status: SaveStatus | null;
   load: () => void;
-  save: () => void;
+  save: () => Promise<boolean>;
 }
 
 function validate(cfg: ExcaVoiceConfig): string | null {
@@ -72,7 +72,7 @@ export function useConfig(logger: Logger): ConfigState {
     setStatus(null);
   }, []);
 
-  const save = useCallback(() => {
+  const save = useCallback(async () => {
     const cfg: ExcaVoiceConfig = {
       ...config,
       baseUrl: config.baseUrl.trim(),
@@ -84,14 +84,14 @@ export function useConfig(logger: Logger): ConfigState {
     if (err) {
       setStatus({ text: err, ok: false });
       logger.error("Config invalid: " + err);
-      return;
+      return false;
     }
 
-    void saveConfig(cfg).then(() => {
-      setStatus({ text: "Saved", ok: true });
-      logger.success("Configuration saved.");
-      window.setTimeout(() => setStatus(null), 800);
-    });
+    await saveConfig(cfg);
+    setStatus({ text: "Saved", ok: true });
+    logger.success("Configuration saved.");
+    window.setTimeout(() => setStatus(null), 800);
+    return true;
   }, [config, logger]);
 
   return {

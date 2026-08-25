@@ -21,6 +21,10 @@ export function App() {
 
   const openLogs = () => setView("logs");
 
+  const saveConfig = async () => {
+    if (await xv.onSave()) setView("none");
+  };
+
   return (
     <Box
       sx={{
@@ -55,7 +59,7 @@ export function App() {
               pauseSeconds={xv.pauseSeconds}
               setPauseSeconds={xv.setPauseSeconds}
               status={xv.status}
-              onSave={xv.onSave}
+              onSave={saveConfig}
             />
           ) : (
             <LogsPanel logs={xv.logs} live={xv.live} />
