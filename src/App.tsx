@@ -52,6 +52,8 @@ export function App() {
               setFreeModels={xv.setFreeModels}
               language={xv.language}
               setLanguage={xv.setLanguage}
+              pauseSeconds={xv.pauseSeconds}
+              setPauseSeconds={xv.setPauseSeconds}
               status={xv.status}
               onSave={xv.onSave}
             />

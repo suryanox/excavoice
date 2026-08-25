@@ -38,6 +38,8 @@ interface ConfigPanelProps {
   setFreeModels: (v: boolean) => void;
   language: string;
   setLanguage: (v: string) => void;
+  pauseSeconds: number;
+  setPauseSeconds: (v: number) => void;
   status: SaveStatus | null;
   onSave: () => void;
 }
@@ -70,6 +72,16 @@ export function ConfigPanel(props: ConfigPanelProps) {
         value={props.model}
         onChange={props.setModel}
         placeholder="gpt-4o-mini"
+      />
+      <ConfigField
+        label="Pause before submitting (seconds)"
+        type="number"
+        value={String(props.pauseSeconds)}
+        onChange={(value) => {
+          const seconds = Number(value);
+          if (Number.isFinite(seconds) && seconds > 0) props.setPauseSeconds(seconds);
+        }}
+        inputProps={{ min: 0.5, max: 10, step: 0.5 }}
       />
       <FormControlLabel
         control={

@@ -11,6 +11,7 @@ vi.mock("../lib/storage", () => ({
     model: "",
     freeModels: false,
     language: "en",
+    pauseSeconds: 5,
   },
   getConfig: (...args: unknown[]) => getConfigMock(...args),
   saveConfig: (...args: unknown[]) => saveConfigMock(...args),
@@ -36,7 +37,14 @@ vi.mock("litellm-client", () => ({
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useExcaVoice } from "./useExcaVoice";
 
-const CONFIG = { baseUrl: "http://x", apiKey: "k", model: "m", freeModels: false };
+const CONFIG = {
+  baseUrl: "http://x",
+  apiKey: "k",
+  model: "m",
+  freeModels: false,
+  language: "en",
+  pauseSeconds: 5,
+};
 
 describe("useExcaVoice", () => {
   beforeEach(() => {
@@ -60,7 +68,7 @@ describe("useExcaVoice", () => {
 
     act(() => result.current.onMic(() => {}));
     expect(result.current.listening).toBe(true);
-    expect(startTranscriptionMock).toHaveBeenCalledWith(expect.anything(), "en");
+    expect(startTranscriptionMock).toHaveBeenCalledWith(expect.anything(), "en", 5);
 
     act(() => handlers.onFinal?.("draw a flowchart"));
     await waitFor(() => expect(sendToExcalidrawMock).toHaveBeenCalledWith("graph TD"));

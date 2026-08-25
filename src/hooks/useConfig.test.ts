@@ -13,6 +13,7 @@ vi.mock("../lib/storage", () => ({
     model: "",
     freeModels: false,
     language: "en",
+    pauseSeconds: 5,
   },
   getConfig: (...args: unknown[]) => getConfigMock(...args),
   saveConfig: (...args: unknown[]) => saveConfigMock(...args),
@@ -63,6 +64,7 @@ describe("useConfig", () => {
       model: "m",
       freeModels: true,
       language: "fr",
+      pauseSeconds: 5,
     });
     await waitFor(() => expect(result.current.status?.ok).toBe(true));
     expect(logger.success).toHaveBeenCalled();
@@ -86,6 +88,7 @@ describe("useConfig", () => {
       model: "m",
       freeModels: true,
       language: "ja",
+      pauseSeconds: 4,
     });
     const { result } = renderHook(() => useConfig(logger));
     act(() => result.current.load());
@@ -94,5 +97,6 @@ describe("useConfig", () => {
     expect(result.current.freeModels).toBe(true);
     expect(result.current.model).toBe("m");
     expect(result.current.language).toBe("ja");
+    expect(result.current.pauseSeconds).toBe(4);
   });
 });

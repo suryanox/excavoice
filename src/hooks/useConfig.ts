@@ -23,6 +23,8 @@ export interface ConfigState {
   setFreeModels: (v: boolean) => void;
   language: string;
   setLanguage: (v: string) => void;
+  pauseSeconds: number;
+  setPauseSeconds: (v: number) => void;
   status: SaveStatus | null;
   load: () => void;
   save: () => void;
@@ -56,6 +58,10 @@ export function useConfig(logger: Logger): ConfigState {
     [updateField],
   );
   const setLanguage = useCallback((value: string) => updateField("language", value), [updateField]);
+  const setPauseSeconds = useCallback(
+    (value: number) => updateField("pauseSeconds", value),
+    [updateField],
+  );
 
   const load = useCallback(() => {
     void getConfig().then((c) => {
@@ -95,6 +101,7 @@ export function useConfig(logger: Logger): ConfigState {
     setModel,
     setFreeModels,
     setLanguage,
+    setPauseSeconds,
     status,
     load,
     save,

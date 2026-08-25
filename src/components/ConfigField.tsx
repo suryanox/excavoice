@@ -6,6 +6,7 @@ interface ConfigFieldProps {
   onChange: (value: string) => void;
   type?: string;
   placeholder?: string;
+  inputProps?: Record<string, unknown>;
 }
 
 export function ConfigField({
@@ -14,6 +15,7 @@ export function ConfigField({
   onChange,
   type = "text",
   placeholder,
+  inputProps,
 }: ConfigFieldProps) {
   const fieldSx = {
     InputLabelProps: { style: { color: "#a0a0ab" } },
@@ -30,6 +32,7 @@ export function ConfigField({
       fullWidth
       placeholder={placeholder}
       {...fieldSx}
+      inputProps={{ ...fieldSx.inputProps, ...inputProps }}
     />
   );
 }

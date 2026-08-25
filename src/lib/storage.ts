@@ -4,6 +4,7 @@ export interface ExcaVoiceConfig {
   model: string;
   freeModels: boolean;
   language: string;
+  pauseSeconds: number;
 }
 
 const KEY = "xcv-config";
@@ -13,6 +14,7 @@ export const DEFAULT_CONFIG: ExcaVoiceConfig = {
   model: "",
   freeModels: false,
   language: "en",
+  pauseSeconds: 5,
 };
 
 export function getConfig(): Promise<ExcaVoiceConfig | null> {

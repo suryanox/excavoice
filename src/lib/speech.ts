@@ -45,7 +45,11 @@ export interface TranscriptHandlers {
   onError?: (error: string) => void;
 }
 
-export function startTranscription(handlers: TranscriptHandlers, lang: string): () => void {
+export function startTranscription(
+  handlers: TranscriptHandlers,
+  lang: string,
+  pauseSeconds = 5,
+): () => void {
   const Ctor = getSpeechRecognition();
   if (!Ctor) {
     handlers.onError?.("Speech API unavailable");
@@ -53,28 +57,47 @@ export function startTranscription(handlers: TranscriptHandlers, lang: string): 
   }
 
   const recognition = new Ctor();
-  recognition.continuous = false;
+  recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = lang;
 
-  let finalText = "";
+  let transcript = "";
+  let silenceTimer: number | undefined;
+  let stopped = false;
+
+  const finalize = () => {
+    if (stopped || !transcript.trim()) return;
+    stopped = true;
+    window.clearTimeout(silenceTimer);
+    recognition.stop();
+    handlers.onFinal(transcript.trim());
+  };
+
+  const restartSilenceTimer = () => {
+    window.clearTimeout(silenceTimer);
+    silenceTimer = window.setTimeout(finalize, pauseSeconds * 1000);
+  };
 
   recognition.onstart = () => handlers.onStart?.();
   recognition.onresult = (event) => {
     let interim = "";
-    finalText = "";
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const r = event.results[i];
-      if (r.isFinal) finalText += r[0].transcript;
+      if (r.isFinal) transcript += r[0].transcript + " ";
       else interim += r[0].transcript;
     }
-    handlers.onPartial?.(finalText + interim);
+    handlers.onPartial?.(transcript + interim);
+    restartSilenceTimer();
   };
   recognition.onerror = (event) => handlers.onError?.(event.error);
   recognition.onend = () => {
-    if (finalText.trim()) handlers.onFinal(finalText.trim());
+    if (!stopped && transcript.trim()) restartSilenceTimer();
   };
 
   recognition.start();
-  return () => recognition.stop();
+  return () => {
+    stopped = true;
+    window.clearTimeout(silenceTimer);
+    recognition.stop();
+  };
 }

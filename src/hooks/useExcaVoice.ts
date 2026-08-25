@@ -72,11 +72,12 @@ export function useExcaVoice() {
           },
         },
         config.language,
+        config.pauseSeconds,
       );
       setListening(true);
       logger.info("Waiting for microphone permission…");
     },
-    [logger, handleTranscript, config.language],
+    [logger, handleTranscript, config.language, config.pauseSeconds],
   );
 
   const onMic = useCallback(

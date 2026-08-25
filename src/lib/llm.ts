@@ -15,7 +15,7 @@ The user's message may be written in any human language. Understand it semantica
 
 Hard rules:
 - Output exactly one valid Mermaid diagram.
-- The first line must be a Mermaid diagram declaration such as flowchart TD, sequenceDiagram, erDiagram.
+- The first line must be a Mermaid diagram declaration only flowchart TD.
 - Do not output explanations, translations, comments, titles, introductions, or apologies.
 - Do not use Markdown code fences.
 - Do not prefix the response with words like "Here is".
