@@ -46,11 +46,6 @@ interface ConfigPanelProps {
 
 export function ConfigPanel(props: ConfigPanelProps) {
   const portalContainer = useContext(PortalContainerContext);
-  const fieldSx = {
-    InputLabelProps: { style: { color: "#a0a0ab" } },
-    inputProps: { style: { color: "#ededf0" } },
-    SelectDisplayProps: { style: { color: "#ededf0" } },
-  };
 
   return (
     <Stack spacing={1.5}>
@@ -88,17 +83,17 @@ export function ConfigPanel(props: ConfigPanelProps) {
           <Checkbox
             checked={props.freeModels}
             onChange={(e) => props.setFreeModels(e.target.checked)}
-            sx={{ color: "#a0a0ab", "&.Mui-checked": { color: "#6965db" } }}
+            sx={{ color: "text.secondary", "&.Mui-checked": { color: "primary.main" } }}
           />
         }
         label={
-          <Typography variant="caption" sx={{ color: "#a0a0ab" }}>
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
             Use OpenRouter free models
           </Typography>
         }
       />
       <FormControl size="small" fullWidth>
-        <InputLabel sx={{ color: "#a0a0ab" }}>Language</InputLabel>
+        <InputLabel sx={{ color: "text.secondary" }}>Language</InputLabel>
         <Select
           label="Language"
           value={props.language}
@@ -107,22 +102,22 @@ export function ConfigPanel(props: ConfigPanelProps) {
             container: portalContainer ?? undefined,
             PaperProps: {
               sx: {
-                bgcolor: "#26262b",
-                color: "#ededf0",
+                bgcolor: "background.paper",
+                color: "text.primary",
               },
             },
           }}
-          {...fieldSx}
+          sx={{ color: "text.primary" }}
         >
           {LANGUAGES.map((l) => (
             <MenuItem
               key={l.code}
               value={l.code}
               sx={{
-                color: "#ededf0",
-                "&:hover": { bgcolor: "#333339" },
-                "&.Mui-selected": { bgcolor: "#333339" },
-                "&.Mui-selected:hover": { bgcolor: "#3b3b43" },
+                color: "text.primary",
+                "&:hover": { bgcolor: "action.hover" },
+                "&.Mui-selected": { bgcolor: "action.selected" },
+                "&.Mui-selected:hover": { bgcolor: "action.selected" },
               }}
             >
               {l.label}
@@ -133,11 +128,11 @@ export function ConfigPanel(props: ConfigPanelProps) {
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography
           variant="caption"
-          sx={{ color: props.status?.ok ? "#4caf7d" : "#e0566f" }}
+          sx={{ color: props.status?.ok ? "success.main" : "error.main" }}
         >
           {props.status?.text || ""}
         </Typography>
-        <Button variant="contained" onClick={props.onSave} sx={{ bgcolor: "#6965db" }}>
+        <Button variant="contained" onClick={props.onSave}>
           Save
         </Button>
       </Stack>

@@ -14,8 +14,8 @@ export function Panel({ title, onClose, children }: PanelProps) {
       sx={{
         width: 320,
         p: 1.5,
-        bgcolor: "#26262b",
-        color: "#ededf0",
+        bgcolor: "background.paper",
+        color: "text.primary",
         borderRadius: 2,
         boxShadow: 6,
       }}
@@ -28,7 +28,7 @@ export function Panel({ title, onClose, children }: PanelProps) {
           size="small"
           onClick={onClose}
           aria-label="Close"
-          sx={{ color: "#a0a0ab" }}
+          sx={{ color: "text.secondary" }}
         >
           <CloseIcon fontSize="small" />
         </IconButton>

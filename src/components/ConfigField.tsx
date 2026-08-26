@@ -17,11 +17,6 @@ export function ConfigField({
   placeholder,
   inputProps,
 }: ConfigFieldProps) {
-  const fieldSx = {
-    InputLabelProps: { style: { color: "#a0a0ab" } },
-    inputProps: { style: { color: "#ededf0" } },
-  };
-
   return (
     <TextField
       label={label}
@@ -31,8 +26,12 @@ export function ConfigField({
       size="small"
       fullWidth
       placeholder={placeholder}
-      {...fieldSx}
-      inputProps={{ ...fieldSx.inputProps, ...inputProps }}
+      inputProps={inputProps}
+      sx={{
+        "& .MuiInputBase-input": { color: "text.primary" },
+        "& .MuiInputLabel-root": { color: "text.secondary" },
+        "& .MuiInputLabel-root.Mui-focused": { color: "primary.main" },
+      }}
     />
   );
 }

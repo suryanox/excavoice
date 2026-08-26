@@ -29,12 +29,12 @@ export function LogsPanel({ logs, live }: LogsPanelProps) {
     <Stack spacing={1}>
       <Box
         sx={{
-          bgcolor: "#1b1b1f",
+          bgcolor: "background.default",
           borderRadius: 1,
           p: 1,
           minHeight: 40,
           fontSize: 13,
-          color: live ? "#ededf0" : "#a0a0ab",
+          color: live ? "text.primary" : "text.secondary",
           fontStyle: live ? "normal" : "italic",
         }}
       >
@@ -56,7 +56,7 @@ export function LogsPanel({ logs, live }: LogsPanelProps) {
           <Box
             key={i}
             sx={{
-              color: LEVEL_COLOR[l.level] || "#a0a0ab",
+              color: LEVEL_COLOR[l.level] || "text.secondary",
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
             }}
