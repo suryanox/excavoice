@@ -6,9 +6,7 @@ It uses Excalidraw's built-in **Mermaid to diagram** tool to render the result d
 
 ## Demo
 
-<video src="./demo.mp4" controls width="720">
-  Your browser does not support embedded video. [Watch the demo](./demo.mp4).
-</video>
+![ExcaVoice demo](./demo.gif)
 
 ## How it works
 
