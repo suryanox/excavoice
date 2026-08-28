@@ -7,7 +7,7 @@ vi.mock("litellm-client", () => ({
   },
 }));
 
-import { normalizeBaseUrl, buildMessages, complete } from "./llm";
+import { cleanMermaidResponse, normalizeBaseUrl, buildMessages, complete } from "./llm";
 
 describe("normalizeBaseUrl", () => {
   it("strips trailing slashes", () => {
@@ -55,5 +55,27 @@ describe("complete", () => {
     await expect(
       complete({ baseUrl: "x", apiKey: "k", model: "m" }, []),
     ).rejects.toThrow("Empty response from LLM");
+  });
+
+  it("removes Mermaid Markdown fences from model output", async () => {
+    completeImpl.mockResolvedValue({
+      choices: [{ message: { content: "```mermaid\nflowchart TD\n  A --> B\n```" } }],
+    });
+
+    await expect(
+      complete({ baseUrl: "http://x", apiKey: "k", model: "m" }, []),
+    ).resolves.toBe("flowchart TD\n  A --> B");
+  });
+
+  it("removes leading prose before a Mermaid declaration", () => {
+    expect(cleanMermaidResponse("Here is the diagram:\nflowchart TD\n  A --> B")).toBe(
+      "flowchart TD\n  A --> B",
+    );
+  });
+
+  it("rejects output that is not a Mermaid diagram", () => {
+    expect(() => cleanMermaidResponse("Here is an explanation.")).toThrow(
+      "Model did not return a Mermaid diagram",
+    );
   });
 });

@@ -23,6 +23,34 @@ Hard rules:
 - Keep user-provided labels in the user's original language when possible.
 - If details are ambiguous, make a reasonable assumption and still return a valid diagram.`;
 
+const MERMAID_DECLARATION =
+  /^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|journey|gantt|pie|mindmap|timeline|quadrantChart)\b/im;
+
+export function cleanMermaidResponse(response: string): string {
+  let cleaned = response.trim();
+  const fenced = cleaned.match(/```(?:mermaid)?\s*([\s\S]*?)```/i);
+
+  if (fenced) {
+    cleaned = fenced[1].trim();
+  } else {
+    cleaned = cleaned
+      .replace(/^```(?:mermaid)?\s*/i, "")
+      .replace(/\s*```$/, "")
+      .trim();
+  }
+
+  const declarationStart = cleaned.search(MERMAID_DECLARATION);
+  if (declarationStart > 0) {
+    cleaned = cleaned.slice(declarationStart).trim();
+  }
+
+  if (!MERMAID_DECLARATION.test(cleaned)) {
+    throw new Error("Model did not return a Mermaid diagram");
+  }
+
+  return cleaned;
+}
+
 export function buildMessages(transcript: string): ChatMessage[] {
   return [
     {
@@ -56,5 +84,5 @@ export async function complete(
 
   const content = res.choices?.[0]?.message?.content;
   if (!content) throw new Error("Empty response from LLM");
-  return String(content).trim();
+  return cleanMermaidResponse(String(content));
 }

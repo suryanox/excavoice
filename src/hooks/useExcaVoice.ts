@@ -33,7 +33,7 @@ export function useExcaVoice() {
   );
 
   const handleTranscript = useCallback(
-    async (text: string) => {
+    async (text: string, onSuccess?: () => void) => {
       const cfg = await getConfig();
       if (!cfg?.baseUrl || !cfg?.apiKey) {
         logger.error(
@@ -46,6 +46,7 @@ export function useExcaVoice() {
       try {
         const mermaid = await service.generate(messages);
         await sendToExcalidraw(mermaid);
+        onSuccess?.();
       } catch (err) {
         logger.error("Failed to generate or insert diagram: " + String(err));
       }
@@ -54,7 +55,7 @@ export function useExcaVoice() {
   );
 
   const startListening = useCallback(
-    (onOpenLogs: () => void) => {
+    (onOpenLogs: () => void, onSuccess?: () => void) => {
       onOpenLogs();
       setLive("");
       stopRef.current = startTranscription(
@@ -64,7 +65,7 @@ export function useExcaVoice() {
           onFinal: (t) => {
             setListening(false);
             logger.info("Transcript: " + t);
-            void handleTranscript(t);
+            void handleTranscript(t, onSuccess);
           },
           onError: (e) => {
             setListening(false);
@@ -81,14 +82,14 @@ export function useExcaVoice() {
   );
 
   const onMic = useCallback(
-    (onOpenLogs: () => void) => {
+    (onOpenLogs: () => void, onSuccess?: () => void) => {
       if (listening) {
         stopRef.current?.();
         stopRef.current = null;
         setListening(false);
         return;
       }
-      startListening(onOpenLogs);
+      startListening(onOpenLogs, onSuccess);
     },
     [listening, startListening],
   );

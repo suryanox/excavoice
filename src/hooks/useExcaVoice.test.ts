@@ -75,6 +75,24 @@ describe("useExcaVoice", () => {
     expect(result.current.logs.some((l) => l.level === "success")).toBe(true);
   });
 
+  it("calls the success callback after inserting the diagram", async () => {
+    getConfigMock.mockResolvedValue(CONFIG);
+    let handlers: Record<string, (...a: unknown[]) => void> = {};
+    startTranscriptionMock.mockImplementation((h: typeof handlers) => {
+      handlers = h;
+      return () => {};
+    });
+    const onSuccess = vi.fn();
+    const { result } = renderHook(() => useExcaVoice());
+
+    act(() => result.current.showConfig());
+    await waitFor(() => expect(result.current.model).toBe("m"));
+    act(() => result.current.onMic(() => {}, onSuccess));
+    act(() => handlers.onFinal?.("draw a flowchart"));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
+  });
+
   it("refuses to generate without configuration", async () => {
     getConfigMock.mockResolvedValue(null);
     let handlers: Record<string, (...a: unknown[]) => void> = {};

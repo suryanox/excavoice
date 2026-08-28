@@ -70,7 +70,7 @@ export function App() {
       <Chip
         listening={xv.listening}
         view={view}
-        onMic={() => xv.onMic(openLogs)}
+        onMic={() => xv.onMic(openLogs, () => setView("none"))}
         onToggleConfig={toggleConfig}
       />
     </Box>
