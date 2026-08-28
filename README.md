@@ -4,6 +4,12 @@ Speak a diagram description and ExcaVoice turns it into a Mermaid diagram on [Ex
 
 It uses Excalidraw's built-in **Mermaid to diagram** tool to render the result directly on the canvas.
 
+## Demo
+
+<video src="./demo.mov" controls width="720">
+  Your browser does not support embedded video. [Watch the demo](./demo.mov).
+</video>
+
 ## How it works
 
 1. ExcaVoice adds a small floating chip to Excalidraw.
