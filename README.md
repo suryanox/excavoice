@@ -6,8 +6,8 @@ It uses Excalidraw's built-in **Mermaid to diagram** tool to render the result d
 
 ## Demo
 
-<video src="./demo.mov" controls width="720">
-  Your browser does not support embedded video. [Watch the demo](./demo.mov).
+<video src="./demo.mp4" controls width="720">
+  Your browser does not support embedded video. [Watch the demo](./demo.mp4).
 </video>
 
 ## How it works
