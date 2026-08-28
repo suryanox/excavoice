@@ -1,24 +1,23 @@
 # ExcaVoice
 
-Speak a diagram description and ExcaVoice renders the generated Mermaid diagram
-directly on [Excalidraw](https://excalidraw.com) using Excalidraw's own
-"Mermaid to diagram" tool.
+Speak a diagram description and ExcaVoice turns it into a Mermaid diagram on [Excalidraw](https://excalidraw.com).
 
-## What it does
+It uses Excalidraw's built-in **Mermaid to diagram** tool to render the result directly on the canvas.
 
-1. A floating chip appears on Excalidraw (bottom-right).
-2. Click the mic, describe a diagram (e.g. "a login flow with a user and a
-   server"), and ExcaVoice transcribes your speech.
-3. The transcript is sent to an OpenAI-compatible LLM (via a LiteLLM proxy or any
-   `/v1` endpoint) that returns Mermaid code.
-4. The Mermaid is pasted into Excalidraw's "Mermaid to diagram" menu and
-   rendered as a real Excalidraw diagram.
+## How it works
+
+1. ExcaVoice adds a small floating chip to Excalidraw.
+2. Click the mic and describe your diagram.
+3. Your speech is transcribed.
+4. The transcript is sent to an OpenAI-compatible LLM.
+5. The LLM returns Mermaid code.
+6. ExcaVoice passes the Mermaid code to Excalidraw and renders the diagram.
 
 ## Requirements
 
-- Google Chrome (or any Chromium-based browser with MV3 support).
-- An OpenAI-compatible API base URL and key (e.g. `https://openrouter.ai/api/v1`).
-- Microphone access.
+* Google Chrome or another Chromium browser with MV3 support
+* An OpenAI-compatible API and key
+* Microphone access
 
 ## Build
 
@@ -27,35 +26,40 @@ npm install
 npm run build
 ```
 
-This produces the unpacked extension in the `extension/` folder.
+The unpacked extension is generated in `extension/`.
 
-## Install (load unpacked)
+## Install
 
 1. Open `chrome://extensions`.
-2. Enable **Developer mode** (top-right).
-3. Click **Load unpacked** and select the `extension/` folder in this repo.
-4. Visit <https://excalidraw.com>.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select the `extension/` folder.
+5. Open [Excalidraw](https://excalidraw.com).
 
 ## Configure
 
-1. Click the gear icon on the floating chip.
-2. Enter:
-   - **API base URL** — e.g. `https://openrouter.ai/api/v1` (the `/v1` suffix
-     is optional; it is handled automatically).
-   - **API key**.
-   - **Model** — or enable **Free models** to round-robin over the models
-     returned by `/v1/models`.
-   - **Generate after pause** — seconds of silence before diagram generation
-     (press Describe/mic to cancel).
-3. Click **Save**.
+Click the gear icon on the ExcaVoice chip.
+
+* **API base URL** — any OpenAI-compatible `/v1` endpoint. For example, `https://openrouter.ai/api/v1`.
+* **API key** — your API key.
+* **Model** — the model to use for Mermaid generation.
+* **Free models** — optionally round-robin through models returned by `/v1/models`.
+* **Generate after pause** — how long to wait after you stop speaking before generating the diagram.
+
+Click **Save** when you're done.
 
 ## Use
 
-- Click the mic and speak your diagram description.
-- A short pause triggers generation; the resulting diagram appears on the canvas.
-- Click the list icon to open the logs panel for request/transcript details.
+Click the mic and describe the diagram.
 
-## Notes
+For example:
 
-- The extension only runs on `https://excalidraw.com/*`.
-- Your config is stored locally in `chrome.storage`.
+> a login flow with a user, frontend, authentication server, and database
+
+After you stop speaking, ExcaVoice generates the Mermaid diagram and adds it to the canvas.
+
+The list icon opens the logs panel with request and transcript details.
+
+## Release
+
+Releases are triggered manually through GitHub Actions.
